@@ -7,23 +7,33 @@ A minimal, production-ready serverless backend combining an **Anonymous Feedback
 ## Project Structure
 
 ```
-personal-inbox-api/
+mesdrop/
 ├── api/
 │   ├── f/
-│   │   └── [username].ts     # POST  /api/f/:username  (public)
+│   │   ├── messages.ts           # GET  /api/f/messages          (public)
+│   │   └── [username]/
+│   │       ├── index.ts          # POST /api/f/:username          (public)
+│   │       └── messages.ts       # GET  /api/f/:username/messages (public)
 │   ├── bookmarks/
-│   │   ├── index.ts          # GET, POST  /api/bookmarks
-│   │   └── [id].ts           # PATCH, DELETE  /api/bookmarks/:id
+│   │   ├── index.ts              # GET, POST  /api/bookmarks      (private)
+│   │   └── [id].ts               # PATCH, DELETE  /api/bookmarks/:id
 │   └── feedback/
-│       └── index.ts          # GET, PATCH  /api/feedback  (private)
+│       └── index.ts              # GET, PATCH  /api/feedback      (private)
+├── pages/
+│   ├── index.tsx                 # Landing page
+│   ├── f/
+│   │   ├── index.tsx             # /f — Public feed + send form
+│   │   └── [username].tsx        # /f/:username — User inbox + send form
+│   └── bookmarks/
+│       └── index.tsx             # /bookmarks — Login + private dashboard
 ├── lib/
-│   ├── supabase.ts           # Supabase clients (public + admin)
-│   ├── auth.ts               # Bearer token extraction
-│   ├── response.ts           # Consistent JSON helpers
-│   ├── rateLimit.ts          # In-memory rate limiter
-│   ├── fetchTitle.ts         # Auto-fetch <title> from URL
-│   └── logger.ts             # Structured JSON logger
-├── schema.sql                # Paste into Supabase SQL Editor
+│   ├── supabase.ts               # Supabase clients (public + admin)
+│   ├── auth.ts                   # Bearer token extraction
+│   ├── response.ts               # Consistent JSON helpers
+│   ├── rateLimit.ts              # In-memory rate limiter (1 req/5 min)
+│   ├── fetchTitle.ts             # Auto-fetch <title> from URL
+│   └── logger.ts                 # Structured JSON logger
+├── schema.sql                    # Paste into Supabase SQL Editor
 ├── vercel.json
 ├── tsconfig.json
 ├── package.json
@@ -40,8 +50,21 @@ personal-inbox-api/
    - `SUPABASE_URL`
    - `SUPABASE_ANON_KEY`
    - `SUPABASE_SERVICE_ROLE_KEY`
+4. Set all four `.env` variables (server + browser):
+   ```env
+   SUPABASE_URL=...
+   SUPABASE_ANON_KEY=...
+   SUPABASE_SERVICE_ROLE_KEY=...
+   NEXT_PUBLIC_SUPABASE_URL=...       # same as SUPABASE_URL
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=...  # same as SUPABASE_ANON_KEY
+   ```
+5. **Create admin user** (for `/bookmarks` dashboard):
+   - Via Supabase Dashboard → **Authentication → Users → Add user**
+   - Email: `aasadmin@mesdrop.local` / Password: `shiroko`
+   - The trigger will auto-create a `public.users` row with username `aasadmin`
 
 ---
+
 
 ## Step 2 — Local Development
 
@@ -127,10 +150,80 @@ Content-Type: application/json
 ```
 
 **Rules:**
-- 5 requests per IP per minute per username
+- **1 request per IP per 5 minutes** per username
 - Message: 3–2000 characters
 
 ---
+
+#### `GET /api/f/messages` — List All Public Messages
+
+No authentication required. Returns all feedback across all users.
+
+```
+GET /api/f/messages
+GET /api/f/messages?limit=20&offset=0
+```
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "data": {
+    "messages": [
+      {
+        "id": "f3a2b1c4-...",
+        "username": "johndoe",
+        "message": "Keep up the great work!",
+        "is_read": false,
+        "created_at": "2024-01-15T10:30:00Z"
+      }
+    ],
+    "limit": 50,
+    "offset": 0
+  }
+}
+```
+
+---
+
+#### `GET /api/f/:username/messages` — List Messages for a User
+
+No authentication required. Returns all feedback for a specific username.
+
+```
+GET /api/f/johndoe/messages
+GET /api/f/johndoe/messages?limit=20&offset=0
+```
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "data": {
+    "username": "johndoe",
+    "messages": [
+      {
+        "id": "f3a2b1c4-...",
+        "message": "Keep up the great work!",
+        "is_read": false,
+        "created_at": "2024-01-15T10:30:00Z"
+      }
+    ],
+    "limit": 50,
+    "offset": 0
+  }
+}
+```
+
+---
+
+### UI Pages
+
+| Path | Description |
+|------|-------------|
+| `/f` | Public feed — semua pesan + form kirim ke username manapun |
+| `/f/:username` | Inbox user tertentu + form kirim ke dia langsung |
+| `/bookmarks` | Login screen → dashboard bookmark pribadi |
 
 ### Private Endpoints (require Bearer token)
 

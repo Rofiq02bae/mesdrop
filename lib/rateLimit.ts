@@ -11,8 +11,8 @@ interface RateLimitEntry {
 
 const store = new Map<string, RateLimitEntry>();
 
-const WINDOW_MS = 60 * 1000; // 1 minute
-const MAX_REQUESTS = 5;       // max 5 feedback submissions per IP per minute
+const WINDOW_MS = 5 * 60 * 1000; // 5 minutes
+const MAX_REQUESTS = 1;           // max 1 feedback submission per IP per 5 minutes
 
 // Periodically clean up expired entries to avoid memory leaks
 setInterval(() => {

@@ -107,3 +107,33 @@ drop trigger if exists on_auth_user_created on auth.users;
 create trigger on_auth_user_created
   after insert on auth.users
   for each row execute procedure public.handle_new_user();
+
+
+-- ── Admin user setup ──────────────────────────────────────────────────────────
+-- Buat user admin lewat Supabase Dashboard atau CLI (JANGAN lewat SQL biasa,
+-- karena auth.users dikelola oleh Supabase Auth, bukan plain SQL).
+--
+-- OPSI A — Via Supabase Dashboard:
+--   1. Buka project → Authentication → Users → "Invite user" atau "Add user"
+--   2. Email   : aasadmin@mesdrop.local
+--   3. Password: shiroko
+--
+-- OPSI B — Via Supabase CLI (supabase users create):
+--   supabase users create \
+--     --email aasadmin@mesdrop.local \
+--     --password shiroko \
+--     --project-ref <YOUR_PROJECT_REF>
+--
+-- OPSI C — Via supabase-js (jalankan sekali di script bootstrap):
+--   const { data, error } = await supabase.auth.admin.createUser({
+--     email: 'aasadmin@mesdrop.local',
+--     password: 'shiroko',
+--     email_confirm: true,
+--   });
+--
+-- Setelah user terbuat, trigger `on_auth_user_created` akan otomatis membuat
+-- row di public.users dengan username = 'aasadmin' (prefix email sebelum @).
+-- Jika ingin username berbeda, jalankan:
+--
+--   update public.users set username = 'aasadmin' where id = '<uuid-dari-auth>';
+

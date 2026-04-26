@@ -1,9 +1,13 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import { supabaseAdmin } from "../../lib/supabase";
-import { ok, fail, serverError } from "../../lib/response";
-import { isRateLimited } from "../../lib/rateLimit";
-import { logger } from "../../lib/logger";
+import { supabaseAdmin } from "../../../lib/supabase";
+import { ok, fail, serverError } from "../../../lib/response";
+import { isRateLimited } from "../../../lib/rateLimit";
+import { logger } from "../../../lib/logger";
 
+/**
+ * POST /api/f/[username]
+ * Public — submit anonymous feedback to a user.
+ */
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Allow only POST
   if (req.method !== "POST") {
@@ -21,7 +25,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   if (isRateLimited(rateLimitKey)) {
     logger.warn("Rate limited", { ip, username });
-    return fail(res, "Too many requests. Please wait a minute.", 429);
+    return fail(res, "Too many requests. Please wait 5 minutes before sending again.", 429);
   }
 
   // ── Validate body ──────────────────────────────────────────────────────────
