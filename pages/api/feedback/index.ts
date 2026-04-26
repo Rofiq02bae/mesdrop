@@ -14,6 +14,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const user = await getAuthUser(req);
     if (!user) return fail(res, "Unauthorized.", 401);
 
+    const { data: userRow, error: userError } = await supabaseAdmin
+        .from("users")
+        .select("username")
+        .eq("id", user.id)
+        .single();
+
+    if (userError || !userRow?.username) {
+        return fail(res, "User profile not found. Ensure your user exists in the users table.", 404);
+    }
+
+    const username = userRow.username;
+
     // ── GET /api/feedback ──────────────────────────────────────────────────────
     if (req.method === "GET") {
         const {
@@ -22,21 +34,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             offset = "0",
         } = req.query as Record<string, string>;
 
-        // Resolve the user's row in the `users` table from their auth UUID
-        const { data: userRow, error: userError } = await supabaseAdmin
-            .from("users")
-            .select("id")
-            .eq("id", user.id)
-            .single();
-
-        if (userError || !userRow) {
-            return fail(res, "User profile not found. Ensure your user exists in the users table.", 404);
-        }
-
         let query = supabaseAdmin
             .from("feedbacks")
             .select("id, message, is_read, created_at")
-            .eq("user_id", user.id)
+            .eq("username", username)
             .order("created_at", { ascending: false })
             .range(Number(offset), Number(offset) + Number(limit) - 1);
 
@@ -55,7 +56,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const { data, error } = await supabaseAdmin
             .from("feedbacks")
             .update({ is_read: true })
-            .eq("user_id", user.id)
+            .eq("username", username)
             .eq("is_read", false)
             .select("id");
 
