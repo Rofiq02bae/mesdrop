@@ -255,7 +255,7 @@ export default function FeedbackWall() {
                 <input
                   value={targetUsername}
                   onChange={(e) => setTargetUsername(e.target.value)}
-                  placeholder="aas"
+                  placeholder="aas (ini bisa diedit)"
                   maxLength={50}
                 />
               </div>

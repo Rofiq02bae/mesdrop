@@ -21,3 +21,5 @@ pnpm-debug.log*
 *.tsbuildinfo
 .DS_Store
 .sql
+
+next-env.d.ts
