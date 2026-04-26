@@ -13,7 +13,7 @@ mesdrop/
 │   ├── supabase.ts        # Supabase client (anon + admin)
 │   ├── auth.ts            # Bearer token extractor
 │   ├── response.ts        # ok() / fail() / serverError()
-│   ├── rateLimit.ts       # In-memory rate limiter (1 req / 5 menit)
+│   ├── rateLimit.ts       # In-memory rate limiter (1 req / 1 menit)
 │   ├── fetchTitle.ts      # Auto-fetch <title> dari URL
 │   └── logger.ts          # JSON structured logger
 │
@@ -110,6 +110,10 @@ vercel env add NEXT_PUBLIC_SUPABASE_ANON_KEY
 vercel --prod
 ```
 
+Catatan:
+- API route proyek ini memakai `pages/api/...` milik Next.js Pages Router.
+- Jangan buat folder `api/` di root untuk endpoint yang sama, karena itu akan dibaca sebagai Vercel Functions terpisah dan bisa bentrok saat build.
+
 ---
 
 ## Halaman UI
@@ -134,8 +138,8 @@ vercel --prod
 // Response 201
 { "success": true, "data": { "id": "uuid", "message": "Pesan berhasil dikirim!", "created_at": "..." } }
 
-// Rate limit: 1 request per IP per 5 menit → 429
-{ "success": false, "error": "Terlalu banyak pesan. Coba lagi dalam 5 menit." }
+// Rate limit: 1 request per IP per 1 menit → 429
+{ "success": false, "error": "Terlalu banyak pesan. Coba lagi dalam 1 menit." }
 ```
 
 #### `GET /api/f/messages` — Semua pesan (publik)
@@ -177,7 +181,7 @@ PATCH /api/feedback               → tandai semua sebagai sudah dibaca
 
 ## Rate Limiting
 
-- **1 pesan per IP per 5 menit** (in-memory per instance)
+- **1 pesan per IP per 1 menit** (in-memory per instance)
 - Frontend menampilkan countdown timer saat cooldown aktif
 - Untuk production multi-instance → migrasi ke [Upstash Redis](https://upstash.com)
 
@@ -198,6 +202,5 @@ Format: `[Adjective] [Animal]` — contoh: `Silent Fox`, `Lunar Panda`, `Crimson
 | Issue | Status | Rekomendasi |
 |-------|--------|-------------|
 | Rate limiter in-memory | ⚠️ per-instance | Ganti ke Upstash Redis |
-| Folder `api/` legacy di root | ⚠️ tidak dipakai | Hapus manual |
 | Rule `*.sql` di `.gitignore` | ⚠️ `schema.sql` ter-ignore | Hapus rule atau `git add -f schema.sql` |
 | 2 moderate vulnerabilities (postcss) | ⚠️ | Monitor update next.js |
