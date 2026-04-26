@@ -1,6 +1,0 @@
-{
-  "version": 3,
-  "sources": [],
-  "sections": [
-    {"offset": {"line": 10, "column": 0}, "map": {"version":3,"sources":["file:///media/aas/New%20Volume1/mesdrop/pages/index.tsx"],"sourcesContent":["export default function HomePage() {\n    return (\n        <main style={{ fontFamily: \"system-ui, sans-serif\", maxWidth: 840, margin: \"40px auto\", lineHeight: 1.6 }}>\n            <h1>Personal Inbox API (Next.js)</h1>\n            <p>Backend API aktif melalui route berikut:</p>\n            <ul>\n                <li><code>/api/f/[username]</code> (POST)</li>\n                <li><code>/api/bookmarks</code> (GET, POST)</li>\n                <li><code>/api/bookmarks/[id]</code> (PATCH, DELETE)</li>\n                <li><code>/api/feedback</code> (GET, PATCH)</li>\n            </ul>\n        </main>\n    );\n}\n"],"names":["HomePage","style","fontFamily","maxWidth","margin","lineHeight"],"mappings":";;;;;;AAAe,SAASA;IACpB,qBACI,qKAAC;QAAKC,OAAO;YAAEC,YAAY;YAAyBC,UAAU;YAAKC,QAAQ;YAAaC,YAAY;QAAI;;0BACpG,qKAAC;0BAAG;;;;;;0BACJ,qKAAC;0BAAE;;;;;;0BACH,qKAAC;;kCACG,qKAAC;;0CAAG,qKAAC;0CAAK;;;;;;4BAAwB;;;;;;;kCAClC,qKAAC;;0CAAG,qKAAC;0CAAK;;;;;;4BAAqB;;;;;;;kCAC/B,qKAAC;;0CAAG,qKAAC;0CAAK;;;;;;4BAA0B;;;;;;;kCACpC,qKAAC;;0CAAG,qKAAC;0CAAK;;;;;;4BAAoB;;;;;;;;;;;;;;;;;;;AAI9C"}}]
-}
